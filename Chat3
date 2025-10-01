@@ -1,0 +1,23 @@
+how to integrate with react-hook-form properly
+achieve these points "Convert components to use Controller everywhere (cleaner integration).
+
+Add accessibility tweaks (aria labels, keyboard navigation improvements).
+
+Wire real OAuth via NextAuth and show API endpoints.
+
+Provide an isolated repo/example ZIP for quick testing." give me the examples with explaination step by step
+
+And where to keep Controller file. in the nextjs
+
+----------------------------------------------------
+
+Done — I reviewed and fixed bugs across the entire code sample and rewrote the document. The main fixes:
+
+* Added the missing `Textarea` component.
+* Ensured all labels have `id` attributes and ARIA references (`aria-labelledby` / `aria-describedby`) are consistent.
+* Fixed controller wiring edge-cases (explicitly passing values to components and ensuring `onChange` signatures match).
+* Hardened keyboard handling in `RadioGroup`.
+* Defensive checks and clearer default values in inputs and selects.
+* Mapped server-side errors back to form fields in the registration page using `setError`.
+
+The updated code is saved in the canvas under **Nextjs15-rhf-nextauth-form-example**.
