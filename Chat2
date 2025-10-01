@@ -1,0 +1,906 @@
+make a saperate exports of aprticular fields "Text Inputs
+
+✅ Textareas
+
+✅ Select (single/multi)
+
+✅ Checkbox / Switch
+
+✅ Radio Buttons
+
+✅ Multi-select with checkbox dropdown + search"
+
+requirement: create  per field universal export fields, 'of all fields'
+
+like : if user 1st name for call input fields , cuntory name in multi select options export etc.
+give me the example  with registration, login(via google, github, facebook, instagram, etc.), page , manage all call stack, full validation( name min 3char, pincode 6digits, Mobile no."start 6-9", etc. if i'm forget , automatically add your self), with get response, 
+
+if i'm any forget , automatically add your self.
+
+show the response , request, errors, in the bottom of forms.
+
+with beautiful transparent uniqe ui smooth with filling.
+
+
+---------------------------------------------------------------------
+
+Nice — I’ll give you a **clean, reusable, production-ready set** of field components (each exported separately) plus example **Registration** and **Login** pages in **Next.js 15** using **React + TypeScript + Tailwind**.
+Features included:
+
+* One component per field type (separate exports): `TextInput`, `Textarea`, `Select`, `MultiSelect`, `CheckboxSwitch`, `RadioGroup`.
+* Uses **react-hook-form** + **zod** for full validation (rules you requested + sensible defaults I add automatically).
+* Multi-select with searchable dropdown (react-select) and checkboxes for options.
+* Responsive, modern, transparent UI with smooth filling interactions (Tailwind).
+* Demo **Registration** form with all fields (first/last name, email, mobile, pincode, country multi-select, password, terms) and **Login** (email/password + social button placeholders).
+* Request / Response / Errors area at the bottom of each form that logs request payload, mock response, and validation/server errors.
+* Mock API calls (client-side simulated) so the demo works out-of-the-box.
+
+---
+
+## Install (run once)
+
+```bash
+# in your Next.js 15 project
+npm install react-hook-form zod @hookform/resolvers react-select
+# tailwind already assumed; if not, install and configure Tailwind for Next 15
+```
+
+---
+
+## File structure (suggested)
+
+```
+/components/fields/
+  TextInput.tsx
+  Textarea.tsx
+  Select.tsx
+  MultiSelect.tsx
+  CheckboxSwitch.tsx
+  RadioGroup.tsx
+/components/ui/
+  SocialButtons.tsx
+  FormFooterLogger.tsx
+/app/register/page.tsx
+/app/login/page.tsx
+```
+
+---
+
+Below are the component files and pages. Copy-paste into your project.
+
+---
+
+### `components/fields/TextInput.tsx`
+
+```tsx
+"use client";
+import React from "react";
+import { FieldError } from "react-hook-form";
+
+export type TextInputProps = {
+  id: string;
+  label?: string;
+  placeholder?: string;
+  required?: boolean;
+  type?: "text" | "email" | "password" | "tel" | "number";
+  value?: string;
+  onChange?: (v: string) => void;
+  disabled?: boolean;
+  className?: string;
+  error?: FieldError | undefined;
+};
+
+export const TextInput: React.FC<TextInputProps> = ({
+  id,
+  label,
+  placeholder,
+  required = false,
+  type = "text",
+  value,
+  onChange,
+  disabled = false,
+  className = "",
+  error,
+}) => {
+  return (
+    <div className={`w-full ${className}`}>
+      {label && (
+        <label htmlFor={id} className="block text-sm font-medium mb-1">
+          {label} {required && <span className="text-red-500">*</span>}
+        </label>
+      )}
+      <input
+        id={id}
+        type={type}
+        placeholder={placeholder}
+        value={value}
+        disabled={disabled}
+        onChange={(e) => onChange?.(e.target.value)}
+        className={`w-full bg-white/40 backdrop-blur-sm border border-gray-200 focus:ring-2 focus:ring-indigo-400 rounded-lg px-3 py-2 outline-none transition-shadow
+          ${error ? "border-red-500 ring-red-200" : "hover:shadow-sm"}
+        `}
+      />
+      {error && <p className="text-xs text-red-600 mt-1">{error.message}</p>}
+    </div>
+  );
+};
+
+export default TextInput;
+```
+
+---
+
+### `components/fields/Textarea.tsx`
+
+```tsx
+"use client";
+import React from "react";
+import { FieldError } from "react-hook-form";
+
+export type TextareaProps = {
+  id: string;
+  label?: string;
+  placeholder?: string;
+  rows?: number;
+  required?: boolean;
+  value?: string;
+  onChange?: (v: string) => void;
+  error?: FieldError | undefined;
+  className?: string;
+};
+
+export const Textarea: React.FC<TextareaProps> = ({
+  id,
+  label,
+  placeholder,
+  rows = 4,
+  required = false,
+  value,
+  onChange,
+  error,
+  className = "",
+}) => {
+  return (
+    <div className={`w-full ${className}`}>
+      {label && (
+        <label htmlFor={id} className="block text-sm font-medium mb-1">
+          {label} {required && <span className="text-red-500">*</span>}
+        </label>
+      )}
+      <textarea
+        id={id}
+        rows={rows}
+        placeholder={placeholder}
+        value={value}
+        onChange={(e) => onChange?.(e.target.value)}
+        className={`w-full bg-white/40 backdrop-blur-sm border border-gray-200 focus:ring-2 focus:ring-indigo-400 rounded-lg px-3 py-2 outline-none transition-shadow min-h-[90px]
+          ${error ? "border-red-500 ring-red-200" : "hover:shadow-sm"}
+        `}
+      />
+      {error && <p className="text-xs text-red-600 mt-1">{error.message}</p>}
+    </div>
+  );
+};
+
+export default Textarea;
+```
+
+---
+
+### `components/fields/Select.tsx`
+
+```tsx
+"use client";
+import React from "react";
+import { FieldError } from "react-hook-form";
+
+export type Option = { value: string; label: string };
+
+export type SelectProps = {
+  id: string;
+  label?: string;
+  options: Option[];
+  value?: string;
+  onChange?: (v: string) => void;
+  placeholder?: string;
+  required?: boolean;
+  error?: FieldError | undefined;
+  className?: string;
+  disabled?: boolean;
+};
+
+export const Select: React.FC<SelectProps> = ({
+  id,
+  label,
+  options,
+  value,
+  onChange,
+  placeholder = "Select an option",
+  required = false,
+  error,
+  className = "",
+  disabled = false,
+}) => {
+  return (
+    <div className={`w-full ${className}`}>
+      {label && (
+        <label htmlFor={id} className="block text-sm font-medium mb-1">
+          {label} {required && <span className="text-red-500">*</span>}
+        </label>
+      )}
+      <select
+        id={id}
+        value={value ?? ""}
+        onChange={(e) => onChange?.(e.target.value)}
+        disabled={disabled}
+        className={`w-full bg-white/40 backdrop-blur-sm border rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-400 outline-none
+          ${error ? "border-red-500" : "border-gray-200"}
+        `}
+      >
+        <option value="">{placeholder}</option>
+        {options.map((o) => (
+          <option key={o.value} value={o.value}>
+            {o.label}
+          </option>
+        ))}
+      </select>
+      {error && <p className="text-xs text-red-600 mt-1">{error.message}</p>}
+    </div>
+  );
+};
+
+export default Select;
+```
+
+---
+
+### `components/fields/MultiSelect.tsx`
+
+```tsx
+"use client";
+import React from "react";
+import ReactSelect, { components, MultiValue } from "react-select";
+import { FieldError } from "react-hook-form";
+
+export type Option = { value: string; label: string };
+
+export type MultiSelectProps = {
+  id: string;
+  label?: string;
+  options: Option[];
+  value?: string[]; // array of values
+  onChange?: (v: string[]) => void;
+  placeholder?: string;
+  required?: boolean;
+  error?: FieldError | undefined;
+  className?: string;
+  disabled?: boolean;
+};
+
+const CheckboxOption = (props: any) => {
+  return (
+    <components.Option {...props}>
+      <div className="flex items-center gap-2">
+        <input
+          type="checkbox"
+          checked={props.isSelected}
+          readOnly
+          className="w-4 h-4"
+        />
+        <span>{props.label}</span>
+      </div>
+    </components.Option>
+  );
+};
+
+export const MultiSelect: React.FC<MultiSelectProps> = ({
+  id,
+  label,
+  options,
+  value = [],
+  onChange,
+  placeholder = "Select options...",
+  required = false,
+  error,
+  className = "",
+  disabled = false,
+}) => {
+  const selected = options.filter((o) => value.includes(o.value));
+  return (
+    <div className={`w-full ${className}`}>
+      {label && (
+        <label htmlFor={id} className="block text-sm font-medium mb-1">
+          {label} {required && <span className="text-red-500">*</span>}
+        </label>
+      )}
+      <ReactSelect
+        inputId={id}
+        isMulti
+        isDisabled={disabled}
+        options={options}
+        value={selected}
+        placeholder={placeholder}
+        components={{ Option: CheckboxOption }}
+        onChange={(selected: MultiValue<Option>) =>
+          onChange?.(selected.map((s) => s.value))
+        }
+        classNamePrefix="react-select"
+        menuPlacement="auto"
+      />
+      {error && <p className="text-xs text-red-600 mt-1">{error.message}</p>}
+    </div>
+  );
+};
+
+export default MultiSelect;
+```
+
+---
+
+### `components/fields/CheckboxSwitch.tsx`
+
+```tsx
+"use client";
+import React from "react";
+import { FieldError } from "react-hook-form";
+
+export type CheckboxSwitchProps = {
+  id: string;
+  label?: string;
+  checked?: boolean;
+  onChange?: (v: boolean) => void;
+  error?: FieldError | undefined;
+  className?: string;
+};
+
+export const CheckboxSwitch: React.FC<CheckboxSwitchProps> = ({
+  id,
+  label,
+  checked = false,
+  onChange,
+  error,
+  className = "",
+}) => {
+  return (
+    <div className={`flex items-start gap-3 ${className}`}>
+      <div className="flex items-center">
+        <input
+          id={id}
+          type="checkbox"
+          checked={checked}
+          onChange={(e) => onChange?.(e.target.checked)}
+          className="w-5 h-5 rounded-md"
+        />
+      </div>
+      {label && <label htmlFor={id} className="text-sm">{label}</label>}
+      {error && <p className="text-xs text-red-600 mt-1">{error.message}</p>}
+    </div>
+  );
+};
+
+export default CheckboxSwitch;
+```
+
+---
+
+### `components/fields/RadioGroup.tsx`
+
+```tsx
+"use client";
+import React from "react";
+import { FieldError } from "react-hook-form";
+
+export type Option = { value: string; label: string };
+
+export type RadioGroupProps = {
+  id: string;
+  label?: string;
+  options: Option[];
+  value?: string;
+  onChange?: (v: string) => void;
+  required?: boolean;
+  error?: FieldError | undefined;
+  className?: string;
+};
+
+export const RadioGroup: React.FC<RadioGroupProps> = ({
+  id,
+  label,
+  options,
+  value,
+  onChange,
+  required = false,
+  error,
+  className = "",
+}) => {
+  return (
+    <div className={`w-full ${className}`}>
+      {label && (
+        <div className="block text-sm font-medium mb-1">
+          {label} {required && <span className="text-red-500">*</span>}
+        </div>
+      )}
+      <div className="flex flex-wrap gap-3">
+        {options.map((o) => (
+          <label key={o.value} className="inline-flex items-center gap-2 cursor-pointer">
+            <input
+              type="radio"
+              name={id}
+              value={o.value}
+              checked={value === o.value}
+              onChange={() => onChange?.(o.value)}
+              className="w-4 h-4"
+            />
+            <span>{o.label}</span>
+          </label>
+        ))}
+      </div>
+      {error && <p className="text-xs text-red-600 mt-1">{error.message}</p>}
+    </div>
+  );
+};
+
+export default RadioGroup;
+```
+
+---
+
+### `components/ui/SocialButtons.tsx`
+
+```tsx
+"use client";
+import React from "react";
+
+type SocialButtonsProps = {
+  onSocialLogin?: (provider: string) => void;
+};
+
+export const SocialButtons: React.FC<SocialButtonsProps> = ({ onSocialLogin }) => {
+  const providers = [
+    { id: "google", label: "Continue with Google" },
+    { id: "github", label: "Continue with GitHub" },
+    { id: "facebook", label: "Continue with Facebook" },
+    { id: "instagram", label: "Continue with Instagram" },
+  ];
+
+  return (
+    <div className="grid gap-3">
+      {providers.map((p) => (
+        <button
+          key={p.id}
+          type="button"
+          onClick={() => onSocialLogin?.(p.id)}
+          className="w-full px-3 py-2 rounded-lg border bg-white/30 backdrop-blur-sm hover:scale-[1.01] transition-transform"
+        >
+          {p.label}
+        </button>
+      ))}
+    </div>
+  );
+};
+
+export default SocialButtons;
+```
+
+---
+
+### `components/ui/FormFooterLogger.tsx`
+
+```tsx
+"use client";
+import React from "react";
+
+export const FormFooterLogger: React.FC<{
+  request?: any;
+  response?: any;
+  errors?: any;
+}> = ({ request, response, errors }) => {
+  return (
+    <div className="mt-6 p-4 bg-white/20 rounded-lg border border-gray-200">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <h4 className="font-medium">Request</h4>
+          <pre className="text-xs max-h-40 overflow-auto mt-2 bg-black/5 p-2 rounded">{JSON.stringify(request, null, 2)}</pre>
+        </div>
+        <div>
+          <h4 className="font-medium">Response</h4>
+          <pre className="text-xs max-h-40 overflow-auto mt-2 bg-black/5 p-2 rounded">{JSON.stringify(response, null, 2)}</pre>
+        </div>
+        <div>
+          <h4 className="font-medium">Errors</h4>
+          <pre className="text-xs max-h-40 overflow-auto mt-2 bg-black/5 p-2 rounded">{JSON.stringify(errors, null, 2)}</pre>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default FormFooterLogger;
+```
+
+---
+
+## Registration page example
+
+`app/register/page.tsx`
+
+```tsx
+"use client";
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+import { TextInput } from "@/components/fields/TextInput";
+import { Textarea } from "@/components/fields/Textarea";
+import { Select } from "@/components/fields/Select";
+import { MultiSelect } from "@/components/fields/MultiSelect";
+import { CheckboxSwitch } from "@/components/fields/CheckboxSwitch";
+import { RadioGroup } from "@/components/fields/RadioGroup";
+import SocialButtons from "@/components/ui/SocialButtons";
+import FormFooterLogger from "@/components/ui/FormFooterLogger";
+
+const countries = [
+  { value: "in", label: "India" },
+  { value: "us", label: "United States" },
+  { value: "uk", label: "United Kingdom" },
+  { value: "au", label: "Australia" },
+];
+
+const hobbies = [
+  { value: "reading", label: "Reading" },
+  { value: "travel", label: "Traveling" },
+  { value: "coding", label: "Coding" },
+  { value: "yoga", label: "Yoga" },
+];
+
+const registerSchema = z.object({
+  firstName: z.string().min(3, "First name must be at least 3 characters"),
+  lastName: z.string().min(1).optional(),
+  email: z.string().email("Invalid email"),
+  mobile: z
+    .string()
+    .regex(/^[6-9]\d{9}$/, "Mobile must start with 6-9 and be 10 digits"),
+  pincode: z.string().regex(/^\d{6}$/, "Pincode must be 6 digits"),
+  country: z.string().nonempty("Select a country"),
+  hobbies: z.array(z.string()).optional(),
+  gender: z.string().optional(),
+  about: z.string().optional(),
+  password: z.string().min(8, "Password min 8 chars"),
+  terms: z.boolean().refine((v) => v === true, "You must accept terms"),
+});
+
+type RegisterForm = z.infer<typeof registerSchema>;
+
+export default function RegisterPage() {
+  const [requestLog, setRequestLog] = useState<any>(null);
+  const [responseLog, setResponseLog] = useState<any>(null);
+  const [serverErrors, setServerErrors] = useState<any>(null);
+
+  const { register, handleSubmit, setValue, watch, control, formState } = useForm<RegisterForm>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      mobile: "",
+      pincode: "",
+      country: "",
+      hobbies: [],
+      gender: "",
+      about: "",
+      password: "",
+      terms: false,
+    },
+  });
+
+  const errors = formState.errors;
+
+  const onSubmit = async (data: RegisterForm) => {
+    setRequestLog(data);
+    setResponseLog(null);
+    setServerErrors(null);
+
+    // Mock API call
+    try {
+      // simulate server validation: if email contains "bad", return server error
+      await new Promise((r) => setTimeout(r, 800));
+      if (data.email.includes("bad")) {
+        throw { status: 422, errors: { email: "Email looks blocked by server." } };
+      }
+      const mockResponse = { ok: true, userId: "user_" + Date.now() };
+      setResponseLog(mockResponse);
+    } catch (err: any) {
+      setServerErrors(err);
+    }
+  };
+
+  // wire some fields to components
+  const watchedHobbies = watch("hobbies") ?? [];
+  const watchedCountry = watch("country") ?? "";
+
+  return (
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-white/30 to-white/10">
+      <div className="w-full max-w-2xl bg-white/40 backdrop-blur-md rounded-2xl p-6 shadow-md border border-gray-200">
+        <h1 className="text-2xl font-bold mb-4">Register</h1>
+
+        <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4">
+          {/* First / Last */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <TextInput
+              id="firstName"
+              label="First name"
+              placeholder="John"
+              required
+              error={errors.firstName}
+              value={undefined}
+              onChange={(v) => setValue("firstName", v)}
+            />
+            <TextInput
+              id="lastName"
+              label="Last name"
+              placeholder="Doe"
+              error={errors.lastName}
+              value={undefined}
+              onChange={(v) => setValue("lastName", v)}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <TextInput
+              id="email"
+              label="Email"
+              placeholder="you@example.com"
+              type="email"
+              required
+              error={errors.email}
+              onChange={(v) => setValue("email", v)}
+            />
+            <TextInput
+              id="mobile"
+              label="Mobile"
+              placeholder="9876543210"
+              type="tel"
+              required
+              error={errors.mobile}
+              onChange={(v) => setValue("mobile", v)}
+            />
+            <TextInput
+              id="pincode"
+              label="Pincode"
+              placeholder="400001"
+              type="text"
+              required
+              error={errors.pincode}
+              onChange={(v) => setValue("pincode", v)}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <Select
+              id="country"
+              label="Country"
+              options={countries}
+              placeholder="Select country"
+              required
+              value={watchedCountry}
+              onChange={(v) => setValue("country", v)}
+              error={errors.country}
+            />
+
+            <MultiSelect
+              id="hobbies"
+              label="Hobbies"
+              options={hobbies}
+              value={watchedHobbies}
+              onChange={(arr) => setValue("hobbies", arr)}
+              placeholder="Choose your hobbies..."
+              error={errors.hobbies as any}
+            />
+          </div>
+
+          <RadioGroup
+            id="gender"
+            label="Gender"
+            options={[
+              { value: "male", label: "Male" },
+              { value: "female", label: "Female" },
+              { value: "other", label: "Other" },
+            ]}
+            value={watch("gender")}
+            onChange={(v) => setValue("gender", v)}
+          />
+
+          <Textarea
+            id="about"
+            label="About you"
+            placeholder="Tell us a bit..."
+            onChange={(v) => setValue("about", v)}
+            error={errors.about as any}
+          />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 items-center">
+            <TextInput
+              id="password"
+              label="Password"
+              type="password"
+              placeholder="min 8 chars"
+              required
+              onChange={(v) => setValue("password", v)}
+              error={errors.password}
+            />
+
+            <CheckboxSwitch
+              id="terms"
+              label="I agree to terms & conditions"
+              checked={watch("terms")}
+              onChange={(v) => setValue("terms", v)}
+              // pass error if any
+              className=""
+            />
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-3">
+            <button
+              type="submit"
+              className="w-full py-2 rounded-lg bg-indigo-600 text-white font-medium hover:brightness-105 transition"
+            >
+              Create account
+            </button>
+
+            <div>
+              <SocialButtons onSocialLogin={(provider) => {
+                setRequestLog({ social: provider });
+                setResponseLog({ ok: true, provider, message: "Mock social login" });
+              }} />
+            </div>
+          </div>
+        </form>
+
+        {/* logger */}
+        <FormFooterLogger request={requestLog} response={responseLog} errors={serverErrors ?? errors} />
+      </div>
+    </div>
+  );
+}
+```
+
+---
+
+## Login page example (with social)
+
+`app/login/page.tsx`
+
+```tsx
+"use client";
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { TextInput } from "@/components/fields/TextInput";
+import SocialButtons from "@/components/ui/SocialButtons";
+import FormFooterLogger from "@/components/ui/FormFooterLogger";
+
+const loginSchema = z.object({
+  email: z.string().email("Invalid email"),
+  password: z.string().min(6, "Password min 6 chars"),
+});
+
+type LoginForm = z.infer<typeof loginSchema>;
+
+export default function LoginPage() {
+  const [requestLog, setRequestLog] = useState<any>(null);
+  const [responseLog, setResponseLog] = useState<any>(null);
+  const [serverErrors, setServerErrors] = useState<any>(null);
+
+  const { register, handleSubmit, setValue, formState } = useForm<LoginForm>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: "", password: "" },
+  });
+
+  const errors = formState.errors;
+
+  const onSubmit = async (data: LoginForm) => {
+    setRequestLog(data);
+    setServerErrors(null);
+    setResponseLog(null);
+    // mock
+    await new Promise((r) => setTimeout(r, 700));
+    if (data.email.includes("fail")) {
+      setServerErrors({ message: "Invalid credentials" });
+      return;
+    }
+    setResponseLog({ ok: true, token: "tok_" + Date.now() });
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-white/40 to-white/10">
+      <div className="w-full max-w-lg bg-white/40 backdrop-blur-md rounded-2xl p-6 shadow-md border border-gray-200">
+        <h1 className="text-2xl font-bold mb-4">Login</h1>
+
+        <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4">
+          <TextInput
+            id="email"
+            label="Email"
+            placeholder="you@example.com"
+            type="email"
+            onChange={(v) => setValue("email", v)}
+            error={errors.email}
+          />
+          <TextInput
+            id="password"
+            label="Password"
+            placeholder="******"
+            type="password"
+            onChange={(v) => setValue("password", v)}
+            error={errors.password}
+          />
+
+          <button type="submit" className="w-full py-2 rounded-lg bg-indigo-600 text-white">
+            Sign in
+          </button>
+
+          <div className="pt-2">
+            <SocialButtons onSocialLogin={(provider) => {
+              setRequestLog({ social: provider });
+              setResponseLog({ ok: true, provider, message: "Mock social sign-in" });
+            }} />
+          </div>
+        </form>
+
+        <FormFooterLogger request={requestLog} response={responseLog} errors={serverErrors ?? errors} />
+      </div>
+    </div>
+  );
+}
+```
+
+---
+
+## Notes, explanations & tips
+
+* **Validation**: I used `zod` schemas with the precise rules you asked (name ≥3, pincode 6 digits, mobile starts 6-9 & 10 digits). I also added password min length and email validation. If you forget something, the schema will add sensible checks (and you can expand the schema).
+* **Reusability**: Each field is a single exported component — reuse them in any form. They accept `error` props from `react-hook-form` so errors show inline.
+* **Multi-select**: `react-select` gives search + multi-select. The option renderer includes a checkbox so UX matches your spec.
+* **Social logins**: Buttons are placeholders invoking `onSocialLogin(provider)`. For real OAuth flows wire `/api/auth/<provider>` or use NextAuth.
+* **Logger**: `FormFooterLogger` prints Request / Response / Errors so you can easily debug and present the bottom-of-form log as requested.
+* **UI**: Tailwind classes provide a transparent, slightly blurred background with smooth focus rings and subtle shadows. Adjust colors as needed.
+
+---
+
+## Quick guidance to integrate with react-hook-form properly
+
+In the examples I used `setValue` + `watch` to wire components that aren’t directly using `register`. For tighter integration, you can use `Controller` from react-hook-form when rendering `react-select` or custom components:
+
+```tsx
+import { Controller } from "react-hook-form";
+
+<Controller
+  name="hobbies"
+  control={control}
+  render={({ field, fieldState }) => (
+    <MultiSelect
+      id="hobbies"
+      options={hobbies}
+      value={field.value}
+      onChange={(v) => field.onChange(v)}
+      error={fieldState.error}
+    />
+  )}
+/>
+```
+
+---
+
+If you want, I can:
+
+* Convert components to use `Controller` everywhere (cleaner integration).
+* Add accessibility tweaks (aria labels, keyboard navigation improvements).
+* Wire real OAuth via NextAuth and show API endpoints.
+* Provide an isolated repo/example ZIP for quick testing.
+
+Which of those do you want next?
+
+
+
+
